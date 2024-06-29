@@ -13,5 +13,11 @@ namespace Batch4.Api.Atm.DataAccess.Services
         {
             _context = new AppDbContext();
         }
+
+        public List<AccountModel> GetAccounts()
+        {
+            var lst = _context.Accounts.ToList();
+            return lst;
+        }
     }
 }
