@@ -17,19 +17,25 @@ namespace Batch4.Api.Atm.UI.Controllers
             _blAtm = blAtm;
         }
 
-        [HttpGet("accounts")]
-        public IActionResult GetAccounts()
-        {
-            var lst = _blAtm.GetAccounts();
-            return Ok(lst);
-        }
-
         [HttpPost("create account")]
         public IActionResult CreateAccount(AccountModel reqModel)
         {
             var result = _blAtm.CreateAccount(reqModel);
             return Ok(result);
         }
-        
+
+        [HttpGet("GetAllMenu")]
+        public IActionResult GetAllMenu()
+        {
+            var lst = _blAtm.GetAllMenu();
+            return Ok(lst);
+        }
+
+        [HttpPost("withdraw {accountNo}/{amount}")]
+        public IActionResult Withdraw(string accountNo, decimal amount)
+        {
+            var result = _blAtm.Withdraw(accountNo, amount);
+            return Ok(result);
+        }
     }
 }
