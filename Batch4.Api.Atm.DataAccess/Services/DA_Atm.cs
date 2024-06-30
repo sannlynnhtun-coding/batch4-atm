@@ -14,17 +14,33 @@ namespace Batch4.Api.Atm.DataAccess.Services
             _context = new AppDbContext();
         }
 
-        public List<AccountModel> GetAccounts()
-        {
-            var lst = _context.Accounts.ToList();
-            return lst;
-        }
-
         public int CreateAccount(AccountModel reqModel)
         {
             _context.Accounts.Add(reqModel);
             var result = _context.SaveChanges();
             return result;
+        }
+
+        public int Withdraw(string accountNo, decimal amount)
+        {
+            var atm = _context.Accounts.FirstOrDefault(x => x.AccountNo == accountNo);
+            if (atm is null) return 0;
+
+            if (amount > atm.Balance) return 0;
+
+            atm.Balance -= amount;
+            var result = _context.SaveChanges();
+            return result;
+        }
+
+        public List<string> GetAllMenu()
+        {
+            var lst = new List<string>();
+            lst.Add("1. Check Balance");
+            lst.Add("2. Withdraw Cash");
+            lst.Add("3. Deposit Cash");
+            lst.Add("4. Exit");
+            return lst;
         }
     }
 }
