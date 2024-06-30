@@ -1,16 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Batch4.Api.Atm.DataAccess.Models;
+﻿using Batch4.Api.Atm.DataAccess.Models;
+using Microsoft.EntityFrameworkCore;
 
-namespace Batch4.Api.Atm.DataAccess.Db
+namespace Batch4.Api.Atm.DataAccess.Db;
+
+public class AppDbContext : DbContext
 {
-    public class AppDbContext : DbContext
+    public AppDbContext(DbContextOptions options) : base(options)
     {
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer(ConnectionString.sqlConnectionStringBuilder.ConnectionString);
-        }
-
-        public DbSet<UserModel> Users { get; set; }
-        public DbSet<AccountModel> Accounts { get; set; }
     }
+
+    public DbSet<UserModel> Users { get; set; }
+    public DbSet<AccountModel> Accounts { get; set; }
 }

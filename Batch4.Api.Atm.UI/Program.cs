@@ -1,5 +1,6 @@
 using Batch4.Api.Atm.BusinessLogic.Services;
 using Batch4.Api.Atm.DataAccess.Db;
+using Batch4.Api.Atm.DataAccess.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,7 +12,19 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<BL_Atm>(n => new BL_Atm());
+// Retrieve the connection string from the configuration
+string connectionString = builder.Configuration.GetConnectionString("DbConnection")!;
+
+// Add the AppDbContext to the services with the SQL Server connection
+builder.Services.AddDbContext<AppDbContext>(
+    opt => { opt.UseSqlServer(connectionString); },
+    ServiceLifetime.Transient,
+    ServiceLifetime.Transient
+);
+
+// Add DA_Atm and BL_Atm services to the dependency injection container
+builder.Services.AddScoped<DA_Atm>();
+builder.Services.AddScoped<BL_Atm>();
 
 var app = builder.Build();
 
