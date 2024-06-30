@@ -19,5 +19,12 @@ namespace Batch4.Api.Atm.DataAccess.Services
             var lst = _context.Accounts.ToList();
             return lst;
         }
+
+        public int CreateAccount(AccountModel reqModel)
+        {
+            _context.Accounts.Add(reqModel);
+            var result = _context.SaveChanges();
+            return result;
+        }
     }
 }

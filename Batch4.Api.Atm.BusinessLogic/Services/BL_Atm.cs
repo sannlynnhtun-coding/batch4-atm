@@ -17,5 +17,12 @@ namespace Batch4.Api.Atm.BusinessLogic.Services
             var lst = _daAtm.GetAccounts();
             return lst;
         }
+
+        public string CreateAccount(AccountModel reqModel)
+        {
+            var result = _daAtm.CreateAccount(reqModel);
+            string message = result > 0 ? "Account Created Successfully." : "Account Creation Failed.";
+            return message;
+        }
     }
 }
