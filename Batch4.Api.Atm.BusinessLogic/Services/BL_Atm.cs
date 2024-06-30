@@ -1,38 +1,90 @@
 ﻿using Batch4.Api.Atm.DataAccess.Models;
 using Batch4.Api.Atm.DataAccess.Services;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
-namespace Batch4.Api.Atm.BusinessLogic.Services
+namespace Batch4.Api.Atm.BusinessLogic.Services;
+
+public class BL_Atm
 {
-    public class BL_Atm
+    private readonly DA_Atm _daAtm;
+
+    public BL_Atm(DA_Atm daAtm)
     {
-        private readonly DA_Atm _daAtm;
+        _daAtm = daAtm;
+    }
 
-        public BL_Atm()
+    public List<string> GetAllMenu()
+    {
+        var result = _daAtm.GetAllMenu();
+        return result;
+    }
+
+    public async Task<string> CreateAccount(AccountModel reqModel)
+    {
+        var result = await _daAtm.CreateAccount(reqModel);
+        string message = result > 0 ? "Account Created Successfully." : "Account Creation Failed.";
+        return message;
+    }
+
+    public async Task<string> CreateUser(UserModel requestModel)
+    {
+        var result = await _daAtm.CreateUser(requestModel);
+        string message = result > 0 ? "User Created Successfully." : "User Creation Failed.";
+        return message;
+    }
+
+    public async Task<string> UserLogin(int id, string password)
+    {
+        var user = await _daAtm.GetUser(id);
+        if (user is null)
         {
-            _daAtm = new DA_Atm();
+            return "Invalid User.";
         }
 
-        public string CreateAccount(AccountModel reqModel)
+        if (user.Password != password)
         {
-            var result = _daAtm.CreateAccount(reqModel);
-            string message = result > 0 ? "Account Created Successfully." : "Account Creation Failed.";
-            return message;
+            return "Invalid Password.";
         }
 
-        public List<string> GetAllMenu()
+        return "Login Successful.";
+    }
+
+    public async Task<string> AccountLogin(string accountNo, string pin)
+    {
+        var account = await _daAtm.GetAccount(accountNo);
+        if (account is null)
         {
-            var result= _daAtm.GetAllMenu();
-            return result;
+            return "Invalid Account.";
         }
 
-
-        public string Withdraw(string accountNo, decimal amount)
+        if (account.Pin != pin)
         {
-            var result = _daAtm.Withdraw(accountNo, amount);
-            string message = result > 0 ? $"{amount} has been dispensed." : "Withdrawal failed. Please check your balance and try again.";
-            return message;
+            return "Invalid Pin.";
         }
 
+        return "Login Successful.";
+    }
+
+    public async Task<decimal> CheckBalance(string accountNo)
+    {
+        var result = await _daAtm.CheckBalance(accountNo);
+        return result;
+    }
+
+    public async Task<string> Withdraw(string accountNo, decimal amount)
+    {
+        var result = await _daAtm.Withdraw(accountNo, amount);
+        string message = result > 0
+            ? $"{amount} has been dispensed."
+            : "Withdrawal failed. Please check your balance and try again.";
+        return message;
+    }
+
+    public async Task<string> Deposit(string accountNo, decimal amount)
+    {
+        var result = await _daAtm.Deposit(accountNo, amount);
+        string message = result > 0
+            ? $"{amount} has been deposited."
+            : "Deposit failed. Please check your account and try again.";
+        return message;
     }
 }
