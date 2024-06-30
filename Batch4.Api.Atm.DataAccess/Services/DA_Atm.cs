@@ -1,46 +1,106 @@
 ﻿using Batch4.Api.Atm.DataAccess.Db;
 using Batch4.Api.Atm.DataAccess.Models;
+using Microsoft.EntityFrameworkCore;
 
-namespace Batch4.Api.Atm.DataAccess.Services
+namespace Batch4.Api.Atm.DataAccess.Services;
+
+public class DA_Atm
 {
-    //DataAccess
+    private readonly AppDbContext _context;
 
-    public class DA_Atm
+    public DA_Atm(AppDbContext context)
     {
-        private readonly AppDbContext _context;
+        _context = context;
+    }
 
-        public DA_Atm()
+    public List<string> GetAllMenu()
+    {
+        var lst = new List<string>
         {
-            _context = new AppDbContext();
-        }
+            "1. Check Balance",
+            "2. Withdraw Cash",
+            "3. Deposit Cash",
+            "4. Exit"
+        };
+        return lst;
+    }
 
-        public int CreateAccount(AccountModel reqModel)
-        {
-            _context.Accounts.Add(reqModel);
-            var result = _context.SaveChanges();
-            return result;
-        }
+    public async Task<int> CreateAccount(AccountModel reqModel)
+    {
+        await _context.Accounts.AddAsync(reqModel);
+        var result = await _context.SaveChangesAsync();
+        return result;
+    }
 
-        public int Withdraw(string accountNo, decimal amount)
-        {
-            var atm = _context.Accounts.FirstOrDefault(x => x.AccountNo == accountNo);
-            if (atm is null) return 0;
+    public async Task<AccountModel?> GetAccount(string accountNo)
+    {
+        var account = await _context.Accounts.FirstOrDefaultAsync(x => x.AccountNo == accountNo);
+        return account;
+    }
 
-            if (amount > atm.Balance) return 0;
+    public async Task<decimal> CheckBalance(string accountNo)
+    {
+        var account = await GetAccount(accountNo);
+        if (account is null) return 0;
+        return account.Balance;
+    }
 
-            atm.Balance -= amount;
-            var result = _context.SaveChanges();
-            return result;
-        }
+    public async Task<int> Withdraw(string accountNo, decimal amount)
+    {
+        var account = await GetAccount(accountNo);
+        if (account is null) return 0;
 
-        public List<string> GetAllMenu()
-        {
-            var lst = new List<string>();
-            lst.Add("1. Check Balance");
-            lst.Add("2. Withdraw Cash");
-            lst.Add("3. Deposit Cash");
-            lst.Add("4. Exit");
-            return lst;
-        }
+        if (amount > account.Balance) return 0;
+
+        account.Balance -= amount;
+        var result = await _context.SaveChangesAsync();
+        return result;
+    }
+
+    public async Task<int> Deposit(string accountNo, decimal amount)
+    {
+        var account = await GetAccount(accountNo);
+        if (account is null) return 0;
+
+        account.Balance += amount;
+        var result = await _context.SaveChangesAsync();
+        return result;
+    }
+
+
+    public async Task<UserModel?> GetUser(int id)
+    {
+        var item = await _context.Users.FirstOrDefaultAsync(x => x.UserId == id);
+        return item;
+    }
+
+    public async Task<int> CreateUser(UserModel requestModel)
+    {
+        await _context.Users.AddAsync(requestModel);
+        var result = await _context.SaveChangesAsync();
+        return result;
+    }
+
+    public async Task<int> UpdateUser(int id, UserModel requestModel)
+    {
+        var item = await _context.Users.FirstOrDefaultAsync(x => x.UserId == id);
+        if (item is null) return 0;
+
+        item.UserName = requestModel.UserName;
+        item.Password = requestModel.Password;
+        item.Email = requestModel.Email;
+
+        var result = await _context.SaveChangesAsync();
+        return result;
+    }
+
+    public async Task<int> DeleteUser(int id)
+    {
+        var item = await _context.Users.FirstOrDefaultAsync(x => x.UserId == id);
+        if (item is null) return 0;
+
+        _context.Users.Remove(item);
+        var result = await _context.SaveChangesAsync();
+        return result;
     }
 }
